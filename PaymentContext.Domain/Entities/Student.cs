@@ -1,24 +1,47 @@
+using System;
 using System.Collections.Generic;
-using PaymentContext.Domain.Entities;
+using System.Linq;
+using Flunt.Validations;
+using PaymentContext.Domain.ValueObjects;
+using PaymentContext.Shared.Entities;
 
 namespace PaymentContext.Domain.Entities
 {
-    public class Student
+    public class Student : Entity
     {
-        public Student(string firstName, string lastName, string document, string email, string address) 
+        private IList<Subscription> _subscriptions;
+        public Student(Name name, Document document, Email email) 
         {
-            this.FirstName = firstName;
-            this.LastName = lastName;
+            this.Name = name;
             this.Document = document;
             this.Email = email;
-            this.Address = address;               
+            _subscriptions = new List<Subscription>();     
+
+            AddNotifications(name, document, email);       
         }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Document { get; set; }
-        public string Email { get; set; }        
-        public string Address { get; set; }
-        public List<Subscription> Subscription { get; set; }
+        public Name Name {get; private set;}
+        public Document Document { get; private set; }
+        public Email Email { get; private set; }        
+        public Address Address { get; private set; }
+        public IReadOnlyCollection<Subscription> Subscription { get{ return _subscriptions.ToArray(); } }
+
+        public void AddSubscription(Subscription subscription)
+        {
+            var hasSubscriptionActive = false;
+            foreach(var sub in _subscriptions)
+            {
+                if (sub.Active)
+                    hasSubscriptionActive = true;
+            }
+
+            // AddNotification(new Contract<bool>()
+            //     .Requires()
+            //     .IsFalse(hasSubscriptionActive, "Student.Subscription", "Você já tem uma assinatura ativa")
+            // );
+
+            if(hasSubscriptionActive)
+                AddNotification("Student.Subscription", "Você já tem uma assinatura ativa");
+        }
     }
 }
