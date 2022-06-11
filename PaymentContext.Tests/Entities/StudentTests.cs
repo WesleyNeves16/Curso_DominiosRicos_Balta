@@ -55,5 +55,14 @@ namespace PaymentContext.Tests
 
             Assert.IsTrue(!_student.IsValid);
         }
+
+        [TestMethod]
+        public void ShouldReturnSuccessWhenAddSubscription()
+        {
+            _subscription.AddPayment(_payment);
+            _student.AddSubscription(_subscription);
+
+            Assert.IsTrue(_student.IsValid);
+        }
     }
 }
